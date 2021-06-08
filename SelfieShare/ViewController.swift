@@ -101,5 +101,15 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		}
 	}
 
+	// MARK:- MCBrowser Delegate Methods
+
+	func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
+		dismiss(animated: true)
+	}
+
+	func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
+		dismiss(animated: true)
+	}
+
 }
 
