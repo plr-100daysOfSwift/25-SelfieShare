@@ -110,7 +110,11 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		case .connecting:
 			print("Connecting: \(peerID.displayName)")
 		case .notConnected:
-			print("Not Connected: \(peerID.displayName)")
+			DispatchQueue.main.async { [weak self] in
+				let ac = UIAlertController(title: "\(peerID.displayName) has disconnected.", message: nil, preferredStyle: .alert)
+				ac.addAction(UIAlertAction(title: "OK", style: .default))
+				self?.present(ac, animated: true)
+			}
 		@unknown default:
 			print("Unknown connection state: \(peerID.displayName)")
 		}
