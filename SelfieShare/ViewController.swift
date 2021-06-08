@@ -15,6 +15,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		super.viewDidLoad()
 		title = "Selfie Share"
 
+		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
 
 	}
@@ -43,6 +44,10 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		dismiss(animated: true)
 		images.insert(image, at: 0)
 		collectionView.reloadData()
+	}
+
+	@objc func showConnectionPrompt() {
+
 	}
 }
 
