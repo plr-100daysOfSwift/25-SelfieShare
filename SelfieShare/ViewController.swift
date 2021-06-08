@@ -73,6 +73,33 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		mcBrowser.delegate = self
 		present(mcBrowser, animated: true)
 	}
-	
+
+	// MARK:- MCSession Delegate Methods
+
+	func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
+
+	}
+
+	func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
+
+	}
+
+	func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
+
+	}
+
+	func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+		switch state {
+		case .connected:
+			print("Connected: \(peerID.displayName)")
+		case .connecting:
+			print("Connecting: \(peerID.displayName)")
+		case .notConnected:
+			print("Not Connected: \(peerID.displayName)")
+		@unknown default:
+			print("Unknown connection state: \(peerID.displayName)")
+		}
+	}
+
 }
 
