@@ -101,6 +101,15 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		}
 	}
 
+	func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+		DispatchQueue.main.async { [weak self] in
+			if let image = UIImage(data: data) {
+				self?.images.insert(image, at: 0)
+				self?.collectionView.reloadData()
+			}
+		}
+	}
+
 	// MARK:- MCBrowser Delegate Methods
 
 	func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
