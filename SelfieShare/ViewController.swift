@@ -6,10 +6,14 @@
 //
 
 import UIKit
+import MultipeerConnectivity
 
-class ViewController: UICollectionViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+class ViewController: UICollectionViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, MCSessionDelegate, MCBrowserViewControllerDelegate {
 
 	var images = [UIImage]()
+	var peerID = MCPeerID(displayName: UIDevice.current.name)
+	var mcSession: MCSession?
+	var advertiserAssistant: MCAdvertiserAssistant?
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -17,6 +21,9 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
+
+		mcSession = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
+		mcSession?.delegate = self
 
 	}
 
@@ -55,11 +62,17 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	}
 
 	func startHosting(action: UIAlertAction) {
-
+		guard let mcSession = mcSession else { return }
+		advertiserAssistant = MCAdvertiserAssistant(serviceType: "hws-project25", discoveryInfo: nil, session: mcSession)
+		advertiserAssistant?.start()
 	}
 
 	func joinSession(action: UIAlertAction) {
-
+		guard let mcSession = mcSession else { return }
+		let mcBrowser = MCBrowserViewController(serviceType: "hws-project25", session: mcSession)
+		mcBrowser.delegate = self
+		present(mcBrowser, animated: true)
 	}
+	
 }
 
