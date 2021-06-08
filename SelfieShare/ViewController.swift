@@ -47,6 +47,18 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	}
 
 	@objc func showConnectionPrompt() {
+		let ac = UIAlertController(title: "Connect to others", message: nil, preferredStyle: .alert)
+		ac.addAction(UIAlertAction(title: "Start hosting", style: .default, handler: startHosting))
+		ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
+		ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+		present(ac, animated: true)
+	}
+
+	func startHosting(action: UIAlertAction) {
+
+	}
+
+	func joinSession(action: UIAlertAction) {
 
 	}
 }
