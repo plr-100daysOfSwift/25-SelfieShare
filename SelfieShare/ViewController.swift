@@ -8,12 +8,13 @@
 import UIKit
 import MultipeerConnectivity
 
-class ViewController: UICollectionViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, MCSessionDelegate, MCBrowserViewControllerDelegate {
+class ViewController: UICollectionViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, MCSessionDelegate, MCBrowserViewControllerDelegate, MCNearbyServiceAdvertiserDelegate {
 
 	var images = [UIImage]()
 	var peerID = MCPeerID(displayName: UIDevice.current.name)
 	var mcSession: MCSession?
-	var advertiserAssistant: MCAdvertiserAssistant?
+	var nearbyServiceAdvertiser: MCNearbyServiceAdvertiser?
+
 	let serviceType = "plr-selfieshare"
 
 	override func viewDidLoad() {
@@ -76,9 +77,9 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	}
 
 	func startHosting(action: UIAlertAction) {
-		guard let mcSession = mcSession else { return }
-		advertiserAssistant = MCAdvertiserAssistant(serviceType: "hws-project25", discoveryInfo: nil, session: mcSession)
-		advertiserAssistant?.start()
+		nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+		nearbyServiceAdvertiser?.startAdvertisingPeer()
+		nearbyServiceAdvertiser?.delegate = self
 	}
 
 	func joinSession(action: UIAlertAction) {
@@ -134,5 +135,16 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		dismiss(animated: true)
 	}
 
-}
+	// MARK:- MCNearbyServiceAdvertiser Delegate Methods
 
+	func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+		invitationHandler(true, mcSession)
+	}
+
+	func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+		let ac = UIAlertController(title: "Hosting error", message: error.localizedDescription, preferredStyle: .alert)
+		ac.addAction(UIAlertAction(title: "OK", style: .default))
+		present(ac, animated: true)
+	}
+
+}
