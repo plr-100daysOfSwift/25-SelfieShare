@@ -14,6 +14,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	var peerID = MCPeerID(displayName: UIDevice.current.name)
 	var mcSession: MCSession?
 	var advertiserAssistant: MCAdvertiserAssistant?
+	let serviceType = "plr-selfieshare"
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -82,7 +83,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 	func joinSession(action: UIAlertAction) {
 		guard let mcSession = mcSession else { return }
-		let mcBrowser = MCBrowserViewController(serviceType: "hws-project25", session: mcSession)
+		let mcBrowser = MCBrowserViewController(serviceType: serviceType, session: mcSession)
 		mcBrowser.delegate = self
 		present(mcBrowser, animated: true)
 	}
