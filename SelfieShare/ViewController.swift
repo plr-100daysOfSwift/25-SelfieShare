@@ -106,15 +106,11 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
 		switch state {
 		case .connected:
-			print("Connected: \(peerID.displayName)")
+			alertStateChange(peerID, state: state)
 		case .connecting:
 			print("Connecting: \(peerID.displayName)")
 		case .notConnected:
-			DispatchQueue.main.async { [weak self] in
-				let ac = UIAlertController(title: "\(peerID.displayName) has disconnected.", message: nil, preferredStyle: .alert)
-				ac.addAction(UIAlertAction(title: "OK", style: .default))
-				self?.present(ac, animated: true)
-			}
+			alertStateChange(peerID, state: state)
 		@unknown default:
 			print("Unknown connection state: \(peerID.displayName)")
 		}
@@ -149,6 +145,19 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		let ac = UIAlertController(title: "Hosting error", message: error.localizedDescription, preferredStyle: .alert)
 		ac.addAction(UIAlertAction(title: "OK", style: .default))
 		present(ac, animated: true)
+	}
+
+	// MARK:- Private Methods
+
+	fileprivate func alertStateChange(_ peerID: MCPeerID, state: MCSessionState) {
+		guard state == .connected || state == .notConnected else { return }
+		let stateDescription = state == .connected ? "connected" : "disconnected"
+
+		DispatchQueue.main.async { [weak self] in
+			let ac = UIAlertController(title: "\(peerID.displayName) has \(stateDescription).", message: nil, preferredStyle: .alert)
+			ac.addAction(UIAlertAction(title: "OK", style: .default))
+			self?.present(ac, animated: true)
+		}
 	}
 
 }
