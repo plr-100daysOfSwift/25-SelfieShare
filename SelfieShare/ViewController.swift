@@ -33,6 +33,17 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 	}
 
+	@objc func listPeers() {
+		guard let mcSession  = mcSession else { return }
+		guard mcSession.connectedPeers.count > 0 else { return }
+		let allPeers = mcSession.connectedPeers.map { $0.displayName }.joined(separator: "\n")
+		DispatchQueue.main.async { [weak self] in
+			let ac = UIAlertController(title: "Connected Peers", message: allPeers, preferredStyle: .alert)
+			ac.addAction(UIAlertAction(title: "OK", style: .default))
+			self?.present(ac, animated: true)
+		}
+	}
+
 	override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		return images.count
 	}
