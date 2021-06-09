@@ -29,65 +29,18 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 	}
 
+	// MARK:- Collection View Data Source Methods
+
 	override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		return bonmots.count
 	}
 
 	override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TextView", for: indexPath)
-		if let textView = cell.viewWithTag(1000) as? UITextView {
-			textView.text = bonmots[indexPath.item]
+		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BonMot", for: indexPath)
+		if let label = cell.viewWithTag(1000) as? UILabel {
+			label.text = bonmots[indexPath.item]
 		}
 		return cell
-	}
-
-	@objc func addBonMot() {
-		let ac = UIAlertController(title: "Add a Bon Mot", message: nil, preferredStyle: .alert)
-		ac.addTextField()
-		ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self, weak ac] _ in
-			if let text = ac?.textFields?[0].text {
-				self?.bonmots.append(text)
-				self?.collectionView.reloadData()
-				self?.sendToPeers(text)
-			}
-		}))
-		ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-		present(ac, animated: true)
-	}
-
-	fileprivate func sendToPeers(_ text: String) {
-		guard let mcSession = self.mcSession else { return }
-		if mcSession.connectedPeers.count > 0 {
-			let textData = Data(text.utf8)
-			do {
-				try mcSession.send(textData, toPeers: mcSession.connectedPeers, with: .reliable)
-			} catch {
-				let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
-				ac.addAction(UIAlertAction(title: "OK", style: .default))
-				present(ac, animated: true)
-			}
-		}
-	}
-
-	@objc func showConnectionPrompt() {
-		let ac = UIAlertController(title: "Connect to others", message: nil, preferredStyle: .alert)
-		ac.addAction(UIAlertAction(title: "Start hosting", style: .default, handler: startHosting))
-		ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
-		ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-		present(ac, animated: true)
-	}
-
-	func startHosting(action: UIAlertAction) {
-		nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
-		nearbyServiceAdvertiser?.startAdvertisingPeer()
-		nearbyServiceAdvertiser?.delegate = self
-	}
-
-	func joinSession(action: UIAlertAction) {
-		guard let mcSession = mcSession else { return }
-		let mcBrowser = MCBrowserViewController(serviceType: serviceType, session: mcSession)
-		mcBrowser.delegate = self
-		present(mcBrowser, animated: true)
 	}
 
 	// MARK:- MCSession Delegate Methods
@@ -148,6 +101,55 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	}
 
 	// MARK:- Private Methods
+
+	@objc func addBonMot() {
+		let ac = UIAlertController(title: "Add a Bon Mot", message: nil, preferredStyle: .alert)
+		ac.addTextField()
+		ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self, weak ac] _ in
+			if let text = ac?.textFields?[0].text {
+				self?.bonmots.append(text)
+				self?.collectionView.reloadData()
+				self?.sendToPeers(text)
+			}
+		}))
+		ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+		present(ac, animated: true)
+	}
+
+	fileprivate func sendToPeers(_ text: String) {
+		guard let mcSession = self.mcSession else { return }
+		if mcSession.connectedPeers.count > 0 {
+			let textData = Data(text.utf8)
+			do {
+				try mcSession.send(textData, toPeers: mcSession.connectedPeers, with: .reliable)
+			} catch {
+				let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+				ac.addAction(UIAlertAction(title: "OK", style: .default))
+				present(ac, animated: true)
+			}
+		}
+	}
+
+	@objc func showConnectionPrompt() {
+		let ac = UIAlertController(title: "Connect to others", message: nil, preferredStyle: .alert)
+		ac.addAction(UIAlertAction(title: "Start hosting", style: .default, handler: startHosting))
+		ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
+		ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+		present(ac, animated: true)
+	}
+
+	func startHosting(action: UIAlertAction) {
+		nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+		nearbyServiceAdvertiser?.startAdvertisingPeer()
+		nearbyServiceAdvertiser?.delegate = self
+	}
+
+	func joinSession(action: UIAlertAction) {
+		guard let mcSession = mcSession else { return }
+		let mcBrowser = MCBrowserViewController(serviceType: serviceType, session: mcSession)
+		mcBrowser.delegate = self
+		present(mcBrowser, animated: true)
+	}
 
 	fileprivate func alertStateChange(_ peerID: MCPeerID, state: MCSessionState) {
 		guard state == .connected || state == .notConnected else { return }
