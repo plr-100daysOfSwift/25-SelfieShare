@@ -24,6 +24,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
 
+		// TODO: add label "x Peers"; move list peers to the right with  icon list-bullet 􀋲
 		let listPeersButton = UIBarButtonItem(title: "List Peers", style: .plain, target: self, action: #selector(listPeers))
 		setToolbarItems([.flexibleSpace(),  listPeersButton, .flexibleSpace()], animated: true)
 		navigationController?.isToolbarHidden = false
