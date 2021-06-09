@@ -35,8 +35,14 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 	@objc func listPeers() {
 		guard let mcSession  = mcSession else { return }
-		guard mcSession.connectedPeers.count > 0 else { return }
-		let allPeers = mcSession.connectedPeers.map { $0.displayName }.joined(separator: "\n")
+
+		let allPeers: String!
+		if mcSession.connectedPeers.count > 0 {
+			allPeers = mcSession.connectedPeers.map { $0.displayName }.joined(separator: "\n")
+		} else {
+			allPeers = "No peers are currently connected."
+		}
+
 		DispatchQueue.main.async { [weak self] in
 			let ac = UIAlertController(title: "Connected Peers", message: allPeers, preferredStyle: .alert)
 			ac.addAction(UIAlertAction(title: "OK", style: .default))
