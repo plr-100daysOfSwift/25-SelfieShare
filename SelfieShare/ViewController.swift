@@ -8,9 +8,9 @@
 import UIKit
 import MultipeerConnectivity
 
-class ViewController: UICollectionViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, MCSessionDelegate, MCBrowserViewControllerDelegate, MCNearbyServiceAdvertiserDelegate {
+class ViewController: UICollectionViewController, UINavigationControllerDelegate, MCSessionDelegate, MCBrowserViewControllerDelegate, MCNearbyServiceAdvertiserDelegate {
 
-	var images = [UIImage]()
+	var bonmots = [String]()
 	var peerID = MCPeerID(displayName: UIDevice.current.name)
 	var mcSession: MCSession?
 	var nearbyServiceAdvertiser: MCNearbyServiceAdvertiser?
@@ -19,10 +19,10 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		title = "Selfie Share"
+		title = "Bon Mot Share"
 
 		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
-		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
+		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(addBonMot))
 
 		mcSession = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 		mcSession?.delegate = self
@@ -30,40 +30,41 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 	}
 
 	override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return images.count
+		return bonmots.count
 	}
 
 	override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageView", for: indexPath)
-		if let imageView = cell.viewWithTag(1000) as? UIImageView {
-			imageView.image = images[indexPath.item]
+		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TextView", for: indexPath)
+		if let textView = cell.viewWithTag(1000) as? UITextView {
+			textView.text = bonmots[indexPath.item]
 		}
 		return cell
 	}
 
-	@objc func importPicture() {
-		let picker = UIImagePickerController()
-		picker.allowsEditing = true
-		picker.delegate = self
-		present(picker, animated: true)
+	@objc func addBonMot() {
+		let ac = UIAlertController(title: "Add a Bon Mot", message: nil, preferredStyle: .alert)
+		ac.addTextField()
+		ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self, weak ac] _ in
+			if let text = ac?.textFields?[0].text {
+				self?.bonmots.append(text)
+				self?.collectionView.reloadData()
+				self?.sendToPeers(text)
+			}
+		}))
+		ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+		present(ac, animated: true)
 	}
 
-	func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-		guard let image = info[.editedImage] as? UIImage else { return }
-		dismiss(animated: true)
-		images.insert(image, at: 0)
-		collectionView.reloadData()
-
-		guard let mcSession = mcSession else { return }
+	fileprivate func sendToPeers(_ text: String) {
+		guard let mcSession = self.mcSession else { return }
 		if mcSession.connectedPeers.count > 0 {
-			if let imageData = image.pngData() {
-				do {
-					try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
-				} catch {
-					let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
-					ac.addAction(UIAlertAction(title: "OK", style: .default))
-					present(ac, animated: true)
-				}
+			let textData = Data(text.utf8)
+			do {
+				try mcSession.send(textData, toPeers: mcSession.connectedPeers, with: .reliable)
+			} catch {
+				let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+				ac.addAction(UIAlertAction(title: "OK", style: .default))
+				present(ac, animated: true)
 			}
 		}
 	}
@@ -118,10 +119,9 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 
 	func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
 		DispatchQueue.main.async { [weak self] in
-			if let image = UIImage(data: data) {
-				self?.images.insert(image, at: 0)
-				self?.collectionView.reloadData()
-			}
+			let text = String(decoding: data, as: UTF8.self)
+			self?.bonmots.insert(text, at: 0)
+			self?.collectionView.reloadData()
 		}
 	}
 
