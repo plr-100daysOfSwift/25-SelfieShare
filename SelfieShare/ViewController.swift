@@ -39,6 +39,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BonMot", for: indexPath)
 		if let label = cell.viewWithTag(1000) as? UILabel {
 			label.text = bonmots[indexPath.item]
+			// TODO: the layout should adjust to accommodate multiline text
 		}
 		return cell
 	}
