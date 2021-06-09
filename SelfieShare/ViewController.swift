@@ -24,6 +24,10 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
 		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
 
+		let listPeersButton = UIBarButtonItem(title: "List Peers", style: .plain, target: self, action: #selector(listPeers))
+		setToolbarItems([.flexibleSpace(),  listPeersButton, .flexibleSpace()], animated: true)
+		navigationController?.isToolbarHidden = false
+
 		mcSession = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 		mcSession?.delegate = self
 
